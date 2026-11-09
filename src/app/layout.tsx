@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="wide" suppressHydrationWarning>
       <head>
         <link
           rel="preload"
@@ -44,7 +44,11 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              if (!new URLSearchParams(location.search).has("4x3")) document.documentElement.classList.add("wide");
+              if (new URLSearchParams(location.search).has("4x3")) {
+                document.documentElement.classList.remove("wide");
+              } else {
+                document.documentElement.classList.add("wide");
+              }
               (function () {
                 var t = new URLSearchParams(location.search).get("touch");
                 if (t === "1" || (t !== "0" && window.matchMedia && matchMedia("(pointer: coarse)").matches))
@@ -56,9 +60,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>
-        {children}
-      </body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

@@ -9,19 +9,6 @@ export default function Cricket07Page() {
   
 
   useEffect(() => {
-    // Hire banner dismissed state
-    try {
-      const KEY = "c07.hireDismissed";
-      if (localStorage.getItem(KEY) !== "1") {
-        document.body.classList.add("hire-on");
-      }
-      document.getElementById("hire-close")?.addEventListener("click", () => {
-        document.body.classList.remove("hire-on");
-        try { localStorage.setItem(KEY, "1"); } catch {}
-        document.getElementById("canvas")?.focus();
-      });
-    } catch {}
-
     // Load netplay and c07 scripts in order
     const loadScript = (src: string) => {
       return new Promise<void>((resolve, reject) => {
@@ -110,13 +97,6 @@ export default function Cricket07Page() {
     </div>
     <div id="fstip" className="hidden">Press <kbd>Alt</kbd> + <kbd>Enter</kbd> for fullscreen</div>
     <div id="panel">
-      <div id="hire" role="region" aria-label="Hiring note">
-        <span>I built this project and I’m open to new opportunities (engineering roles).</span>
-        <a href="https://twitter.com/dhaiwat" target="_blank" rel="noopener">Shoot me a message</a>
-        <button id="hire-close" type="button" aria-label="Dismiss" title="Dismiss">×</button>
-      </div>
-      
-
       
       <div id="install" className="hidden"></div>
 
@@ -296,7 +276,7 @@ export default function Cricket07Page() {
     <div className="row"><span className="label">Delete save</span><div className="keys"><kbd>D</kbd></div></div>
     <div className="row"><span className="label">Name a save</span><div className="keys"><kbd>Enter</kbd></div></div>
   </aside>
-  <p className="credit">Original game copyright of EA Sports · Ported to browser by <a href="https://twitter.com/dhaiwat" target="_blank" rel="noopener">Dhaiwat</a>
+  <p className="credit">Original game copyright of EA Sports · Ported to browser by <b>Sarang Studios</b>
     <span id="visits">4,073,673 visits</span></p>
   <button id="kbd-show" type="button" aria-label="Show keyboard controls" title="Show keyboard controls">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

@@ -4,7 +4,7 @@
 
 # 🏏 EA SPORTS™ Cricket 07 — Web Port
 
-### Made by Sharang Studios (Ronit Mathur)
+### Made by Sarang Studios (Ronit Mathur)
 
 A modern, high-performance web port of **EA Sports Cricket 07 (2006)** running directly in modern web browsers via WebAssembly, WebGPU, WebAudio, and WebRTC.
 
