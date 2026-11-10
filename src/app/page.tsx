@@ -158,7 +158,7 @@ export default function Cricket07Page() {
             className="btn ghost"
             style={{display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 18px", borderRadius: "8px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", cursor: "pointer"}}
           >
-            <span>🏏</span> <b>View 2026 Squads &amp; Rosters (SENA, India, Pak)</b>
+            <span>🏏</span> <b>View 2026 Squads &amp; Rosters (SENA, IND, PAK &amp; more)</b>
           </button>
         </div>
 
@@ -291,7 +291,7 @@ export default function Cricket07Page() {
         <div style={{padding: "16px 20px", borderBottom: "1px solid #27272a", display: "flex", alignItems: "center", justifyContent: "space-between"}}>
           <div>
             <h2 style={{margin: 0, fontSize: "1.25rem", fontWeight: 700}}>🏏 Updated Modern 2026 Squads &amp; Rosters</h2>
-            <p style={{margin: "4px 0 0", fontSize: "0.85rem", color: "#a1a1aa"}}>Authentic original names, modern stats &amp; ratings for SENA, India, Pakistan &amp; more</p>
+            <p style={{margin: "4px 0 0", fontSize: "0.85rem", color: "#a1a1aa"}}>Authentic original names, modern stats &amp; ratings — SENA, India, Pakistan, Sri Lanka, West Indies, Afghanistan</p>
           </div>
           <button
             type="button"
@@ -305,7 +305,7 @@ export default function Cricket07Page() {
         <div style={{padding: "12px 20px", background: "rgba(59, 130, 246, 0.12)", borderBottom: "1px solid rgba(59, 130, 246, 0.25)", fontSize: "0.85rem", color: "#93c5fd", display: "flex", alignItems: "center", gap: "10px"}}>
           <span style={{fontSize: "1.2rem"}}>💡</span>
           <div>
-            <b>How to load in-game:</b> Modern roster is auto-installed! In the main menu, go to <b>My Cricket ➔ Load / Save ➔ Load Roster</b> and select <b>MODERN26</b>!
+            <b>Auto-installed!</b> When the game boots, a prompt will remind you. In the game go to <b>My Cricket ➔ Load / Save ➔ Load Roster</b> and select <b>MODERN26</b>. Only needed once per session.
           </div>
         </div>
 

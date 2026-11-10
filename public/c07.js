@@ -809,6 +809,31 @@ function bootDone() {
   clearTimeout(bootTimer);
   document.documentElement.classList.remove('booting');
   $('boot').classList.add('hidden');
+  // Show one-time roster load hint so players know MODERN26.ros is ready to load in-game.
+  // We use localStorage so it appears on first play only (can be re-triggered by clearing site data).
+  try {
+    if (!localStorage.getItem('c07.rosterHintSeen')) {
+      const hint = document.createElement('div');
+      hint.id = 'roster-hint';
+      hint.style.cssText = [
+        'position:fixed', 'bottom:16px', 'left:50%', 'transform:translateX(-50%)',
+        'z-index:9999', 'background:rgba(30,64,175,0.97)', 'color:#fff',
+        'padding:12px 20px', 'border-radius:12px', 'max-width:min(540px,90vw)',
+        'font:14px/1.5 system-ui,sans-serif', 'box-shadow:0 8px 32px rgba(0,0,0,.5)',
+        'display:flex', 'align-items:center', 'gap:12px', 'pointer-events:auto',
+      ].join(';');
+      hint.innerHTML = '<span style="font-size:1.5rem">🏏</span>' +
+        '<span><b>Modern 2026 roster is ready!</b><br>' +
+        'Go to <b>My Cricket → Load / Save → Load Roster</b> and pick <b>MODERN26</b>.</span>' +
+        '<button onclick="localStorage.setItem(\'c07.rosterHintSeen\',\'1\');this.closest(\'#roster-hint\').remove()" ' +
+        'style="margin-left:8px;padding:4px 12px;background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:6px;cursor:pointer;white-space:nowrap">Got it</button>';
+      document.body.appendChild(hint);
+      // Auto-dismiss after 15 seconds
+      setTimeout(() => {
+        try { localStorage.setItem('c07.rosterHintSeen', '1'); hint.remove(); } catch {}
+      }, 15000);
+    }
+  } catch {}
 }
 
 async function installModernRoster(session) {
