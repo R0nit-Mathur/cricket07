@@ -85,7 +85,7 @@ async function fetchOk(url, headers = {}) {
 
 async function pump(stream, w) {
   const reader = stream.getReader();
-  for (;;) {
+  for (; ;) {
     const { done, value } = await reader.read();
     if (done) break;
     await w.write(value);
@@ -316,7 +316,7 @@ async function parentOf(dir, relPath) {
 
 async function removeAt(dir, relPath) {
   const [d, name] = await parentOf(dir, relPath);
-  await d.removeEntry(name).catch(() => {});
+  await d.removeEntry(name).catch(() => { });
 }
 
 async function renameAt(dir, from, to) {
@@ -360,7 +360,7 @@ async function importFromPicker(fileList) {
   if (!list.some((e) => e.dest === EXE)) throw new Error('No game executable (Cricket07.cracked.exe or Crack/cricket07.exe) in that folder.');
   if (!list.some((e) => e.dest.toLowerCase() === 'data/data.gob')) throw new Error('No Data/data.gob in that folder.');
   const root = await navigator.storage.getDirectory();
-  try { await root.removeEntry(OPFS_DIR, { recursive: true }); } catch {}
+  try { await root.removeEntry(OPFS_DIR, { recursive: true }); } catch { }
   await navigator.storage.persist?.();
   const dir = await gameDir(true);
   const total = list.reduce((s, e) => s + e.f.size, 0);
@@ -517,7 +517,7 @@ function hookInput(M, net) {
     if (fromTouch(e)) return;
     if (document.pointerLockElement !== canvas) {
       const p = canvas.requestPointerLock?.();
-      if (p && p.catch) p.catch(() => {});
+      if (p && p.catch) p.catch(() => { });
     }
     M._input_mouse_button([0, 2, 1][e.button] ?? 0, 1);
   });
@@ -546,7 +546,7 @@ function setupTouch(press) {
 
   const pad = $('tpad'), knob = pad.querySelector('.knob');
   const DIRS = [['ArrowRight'], ['ArrowRight', 'ArrowDown'], ['ArrowDown'], ['ArrowDown', 'ArrowLeft'],
-    ['ArrowLeft'], ['ArrowLeft', 'ArrowUp'], ['ArrowUp'], ['ArrowUp', 'ArrowRight']];
+  ['ArrowLeft'], ['ArrowLeft', 'ArrowUp'], ['ArrowUp'], ['ArrowUp', 'ArrowRight']];
   const ARROWS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
   let padPointer = null;
   const steer = (e) => {
@@ -777,9 +777,9 @@ function showNetStatus(M, session) {
     const path = trips.direct ? `direct ${trips.direct} ms` : `relayed ${trips.room} ms`;
     el.textContent = desync ? `Out of sync since frame ${desync}: restart the session`
       : `Online · player ${session.you + 1} of ${session.players} · delay ${session.delay}` +
-        ` · ${path}` + (stalls ? ` · ${stalls} stalls` : '') +
-        (session.reconnecting ? ' · reconnecting…' : frame > 300 && fps < 50 ? ' · waiting for players' : '') +
-        (session.left?.size ? ` · ${session.left.size} left` : '');
+      ` · ${path}` + (stalls ? ` · ${stalls} stalls` : '') +
+      (session.reconnecting ? ' · reconnecting…' : frame > 300 && fps < 50 ? ' · waiting for players' : '') +
+      (session.left?.size ? ` · ${session.left.size} left` : '');
   }, 1000);
 }
 
@@ -830,10 +830,10 @@ function bootDone() {
       document.body.appendChild(hint);
       // Auto-dismiss after 15 seconds
       setTimeout(() => {
-        try { localStorage.setItem('c07.rosterHintSeen', '1'); hint.remove(); } catch {}
+        try { localStorage.setItem('c07.rosterHintSeen', '1'); hint.remove(); } catch { }
       }, 15000);
     }
-  } catch {}
+  } catch { }
 }
 
 async function installModernRoster(session) {
@@ -886,7 +886,7 @@ async function run(session) {
   // Solo saves (profiles, tours, tournaments, matches) live in OPFS under userdata/ (host/main.c). Ask
   // again for persistent storage so the browser doesn't evict them: Chrome grants it silently once the
   // site is bookmarked or used often, so a later visit can succeed where the first download didn't.
-  else navigator.storage.persist?.().catch(() => {});
+  else navigator.storage.persist?.().catch(() => { });
   await installModernRoster(session);
   sizeCanvas();
   const script = document.createElement('script');
@@ -896,10 +896,12 @@ async function run(session) {
   const module = await wasmModule?.catch(() => null);
   const M = await createC07({
     arguments: ['/opfs/' + OPFS_DIR],
-    ...(module && { instantiateWasm: (imports, receive) => {
-      WebAssembly.instantiate(module, imports).then((inst) => receive(inst, module));
-      return {};
-    } }),
+    ...(module && {
+      instantiateWasm: (imports, receive) => {
+        WebAssembly.instantiate(module, imports).then((inst) => receive(inst, module));
+        return {};
+      }
+    }),
     print: (t) => console.log(t),
     printErr: (t) => console.log(t),
     // Quit in the game's main menu (or a fatal error) ends it: back to the launcher, without the options that
@@ -996,9 +998,9 @@ function noWebGPUiOS() {
     'Here\'s what you can do:<ol class="options">' +
     '<li><span><b>Update to iOS 26</b> in <b>Settings → General → Software Update</b>, then open the game again.</span></li>' +
     '<li><span><b>Don\'t want to update?</b> Turn on <b>WebGPU</b> in <b>Settings → Apps → Safari → Advanced → Feature Flags</b> ' +
-      '(iOS 17: <b>Settings → Safari → Advanced → Feature Flags</b>), then ' +
-      (safari ? 'reload this page in Safari.' : `open the game in <b>Safari</b>, not ${other || 'this app'}: the setting only works in Safari.`) +
-      ' This early WebGPU may not run the game.</span></li></ol>' +
+    '(iOS 17: <b>Settings → Safari → Advanced → Feature Flags</b>), then ' +
+    (safari ? 'reload this page in Safari.' : `open the game in <b>Safari</b>, not ${other || 'this app'}: the setting only works in Safari.`) +
+    ' This early WebGPU may not run the game.</span></li></ol>' +
     '<span class="small">Already on iOS 26? Lockdown Mode can switch WebGPU off.</span>';
 }
 
@@ -1014,20 +1016,20 @@ function softwareRendering() {
 function noAdapter() {
   const ua = navigator.userAgent;
   const [name, page, where, label] = /Firefox\//.test(ua) ? ['Firefox', 'about:preferences', 'Settings → General → Performance',
-      'untick <b>Use recommended performance settings</b>, then tick <b>Use hardware acceleration when available</b>']
+    'untick <b>Use recommended performance settings</b>, then tick <b>Use hardware acceleration when available</b>']
     : /Edg\//.test(ua) ? ['Edge', 'edge://settings/system', 'Settings → System and performance', 'turn on <b>Use graphics acceleration when available</b>']
-    : /OPR\//.test(ua) ? ['Opera', 'opera://settings/system', 'Settings → Browser → System', 'turn on <b>Use hardware acceleration when available</b>']
-    : navigator.brave ? ['Brave', 'brave://settings/system', 'Settings → System', 'turn on <b>Use graphics acceleration when available</b>']
-    : /Chrome\//.test(ua) ? ['Chrome', 'chrome://settings/system', 'Settings → System', 'turn on <b>Use graphics acceleration when available</b>']
-    : [];
+      : /OPR\//.test(ua) ? ['Opera', 'opera://settings/system', 'Settings → Browser → System', 'turn on <b>Use hardware acceleration when available</b>']
+        : navigator.brave ? ['Brave', 'brave://settings/system', 'Settings → System', 'turn on <b>Use graphics acceleration when available</b>']
+          : /Chrome\//.test(ua) ? ['Chrome', 'chrome://settings/system', 'Settings → System', 'turn on <b>Use graphics acceleration when available</b>']
+            : [];
   const off = softwareRendering();
   const lead = off ? `Cricket 07 needs your graphics card, but <b>hardware acceleration is off</b> in ${name || 'this browser'}.`
     : 'Cricket 07 needs WebGPU, and this browser found no graphics card it can use. Hardware acceleration may be off.';
   const steps = name ? '<ol>' +
-      `<li><span>Open <b>${where}</b>, or paste this into the address bar: <code>${page}</code> ` +
-        '<button class="btn ghost copy" type="button">Copy</button></span></li>' +
-      `<li><span>${label[0].toUpperCase() + label.slice(1)}.</span></li>` +
-      `<li><span>${name === 'Firefox' ? '<b>Restart Firefox</b>' : `Click <b>Relaunch</b> (or restart ${name})`}, then open the game again.</span></li></ol>`
+    `<li><span>Open <b>${where}</b>, or paste this into the address bar: <code>${page}</code> ` +
+    '<button class="btn ghost copy" type="button">Copy</button></span></li>' +
+    `<li><span>${label[0].toUpperCase() + label.slice(1)}.</span></li>` +
+    `<li><span>${name === 'Firefox' ? '<b>Restart Firefox</b>' : `Click <b>Relaunch</b> (or restart ${name})`}, then open the game again.</span></li></ol>`
     : ' Turn on hardware (graphics) acceleration in the browser settings and restart the browser.';
   $('status').innerHTML = lead + steps + '<span class="small">' +
     (name === 'Firefox' ? 'Firefox only enables WebGPU for some graphics cards and drivers; Chrome or Edge usually work. ' : '') +
@@ -1187,7 +1189,7 @@ function enterFullscreen() {
   const stage = $('stage');
   const p = Promise.resolve((stage.requestFullscreen || stage.webkitRequestFullscreen).call(stage));
   // a phone turns to landscape and stays there while fullscreen (Android; iOS has no lock)
-  if (TOUCH) p.then(() => screen.orientation?.lock?.('landscape')).catch(() => {});
+  if (TOUCH) p.then(() => screen.orientation?.lock?.('landscape')).catch(() => { });
   return p;
 }
 
@@ -1196,7 +1198,7 @@ function setupFullscreen() {
   const active = fullscreenActive;
   const toggle = () => {
     if (active()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-    else enterFullscreen().catch(() => {});
+    else enterFullscreen().catch(() => { });
     $('canvas').focus();
   };
   if (!CAN_FULLSCREEN) { $('fs').classList.add('hidden'); return; }
@@ -1223,7 +1225,7 @@ function setupFullscreen() {
     if (active() && !locked && kbd?.lock) {
       kbd.lock(['Escape']).then(() => {
         if (active()) { locked = true; title(); } else kbd.unlock();
-      }, () => {});
+      }, () => { });
     } else if (!active() && locked) { kbd.unlock(); locked = false; }
     $('fs-icon').setAttribute('d', active() ? 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5' : 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5');
     title();
@@ -1268,6 +1270,9 @@ function setupOnline() {
   } catch { /* storage blocked */ }
   if (params.get('join')) $('np-code').value = params.get('join').toUpperCase();
   let client = null;
+  const NETPLAY_BASE = (
+    params.get('netplay') || location.origin
+  ).replace(/\/+$/, '');
   let lastPlayers = [];
 
   // create: the host's first connection, which places the room in `region` (the Worker's location hint)
@@ -1278,11 +1283,22 @@ function setupOnline() {
     msg('Connecting…');
     let iceServers;   // from the first ticket (TURN credentials last a day)
     const roomUrl = async () => {   // a fresh ticket each time (they expire after an hour)
-      const res = await fetch('_netplay_ticket', { cache: 'no-store' });
-      if (!res.ok) throw new Error('Online play is not available on this server.');
+      const res = await fetch(
+        `${NETPLAY_BASE}/_netplay_ticket`,
+        { cache: 'no-store' }
+      );
+
+      if (!res.ok) {
+        throw new Error('Online play is not available on this server.');
+      }
+
       const { ticket, iceServers: ice } = await res.json();
       iceServers ??= ice;
-      const url = new URL(`netplay/${code}?ticket=${encodeURIComponent(ticket)}`, location.href);
+
+      const url = new URL(
+        `/netplay/${code}?ticket=${encodeURIComponent(ticket)}`,
+        NETPLAY_BASE
+      );
       if (create) { url.searchParams.set('create', '1'); url.searchParams.set('region', $('np-region').value); create = false; }
       url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
       return url.href;
@@ -1290,7 +1306,8 @@ function setupOnline() {
     let url;
     try { url = await roomUrl(); } catch (e) { msg(e.message); return; }
     const invite = new URL(location.href);
-    invite.search = `?join=${code}`;
+    invite.search =
+      `?join=${code}&netplay=${encodeURIComponent(NETPLAY_BASE)}`;
     $('np-room').textContent = code;
     $('invite').textContent = invite.href;
     const version = await buildVersion();
@@ -1407,11 +1424,13 @@ const MENU_ICON = ICON('<path d="M4 7h16M4 12h16M4 17h10"/>');
 const MORE_ICON = ICON('<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>' +
   '<circle cx="19" cy="12" r="1.3" fill="currentColor"/>');
 const GATES = {
-  home: { title: 'Add Cricket 07 to your Home Screen',
+  home: {
+    title: 'Add Cricket 07 to your Home Screen',
     text: 'On iPhone the game plays fullscreen only from the Home Screen.<ol>' +
       `<li><span>Tap ${MENU_ICON} or ${MORE_ICON} next to the address, then <b>Share</b> (or tap ${SHARE_ICON} if Safari shows it).</span></li>` +
       '<li><span>Tap <b>Add to Home Screen</b> (under <b>More</b> if it isn\'t listed).</span></li>' +
-      '<li><span>Open <b>Cricket 07</b> from your Home Screen.</span></li></ol>' },
+      '<li><span>Open <b>Cricket 07</b> from your Home Screen.</span></li></ol>'
+  },
   fullscreen: { title: 'Cricket 07 plays fullscreen', text: 'Tap below to play.', button: 'Go fullscreen' },
   rotate: { title: 'Turn your phone sideways', text: 'Cricket 07 plays in landscape.' },
 };
@@ -1457,9 +1476,9 @@ function setupGate() {
   // Play Solo and Play Multiplayer go fullscreen first: it needs their tap (capture phase: before their handlers)
   $('panel').addEventListener('click', (e) => {
     if (!e.target.closest('#play, #go-online') || STANDALONE || !CAN_FULLSCREEN || fullscreenActive()) return;
-    enterFullscreen().catch(() => {});
+    enterFullscreen().catch(() => { });
   }, true);
-  $('gate-btn').onclick = () => enterFullscreen().catch(() => {});
+  $('gate-btn').onclick = () => enterFullscreen().catch(() => { });
   for (const t of ['resize', 'orientationchange']) window.addEventListener(t, updateGate);
   for (const t of ['fullscreenchange', 'webkitfullscreenchange']) document.addEventListener(t, updateGate);
   matchMedia('(orientation: portrait)').addEventListener?.('change', updateGate);

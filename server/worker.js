@@ -71,7 +71,7 @@ async function iceServers(env) {
     .filter((s) => s.urls.length);
 }
 
-const MAX_PLAYERS = 4;
+const MAX_PLAYERS = 2;
 const REJOIN_GRACE_MS = 15000;
 
 // One room: the first peer to join hosts. Peers say hello (name, game build), the host starts the session
