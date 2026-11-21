@@ -12,8 +12,11 @@ export default function Cricket07Page() {
   const [selectedStadium, setSelectedStadium] = useState("wankhede");
 
   useEffect(() => {
-    // Load netplay and c07 scripts in order
+    // Load netplay and c07 scripts in order with duplicate protection
     const loadScript = (src: string) => {
+      if (document.querySelector(`script[src="${src}"]`)) {
+        return Promise.resolve();
+      }
       return new Promise<void>((resolve, reject) => {
         const s = document.createElement("script");
         s.src = src;
@@ -24,21 +27,14 @@ export default function Cricket07Page() {
       });
     };
 
-    let mounted = true;
     (async () => {
       try {
         await loadScript("/netplay.js");
-        if (mounted) {
-          await loadScript("/c07.js");
-        }
+        await loadScript("/c07.js");
       } catch (err) {
         console.error("Failed to load game scripts:", err);
       }
     })();
-
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   const launchGame = () => {

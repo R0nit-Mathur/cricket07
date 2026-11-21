@@ -220,22 +220,7 @@ function kickCollector(label) {
 // progress readout. Resolves false when the worker can't do the job (no sync access handles): the caller
 // falls back to downloading here.
 function downloadInWorker(jobs, onNet, onNote) {
-  if (typeof Worker === 'undefined') return Promise.resolve(false);
-  return new Promise((resolve, reject) => {
-    let worker;
-    try { worker = new Worker('download-worker.js'); } catch { resolve(false); return; }
-    const finish = (fn) => { worker.terminate(); fn(); };
-    worker.onmessage = (e) => {
-      const m = e.data;
-      if (m.type === 'net') onNet(m.n);
-      else if (m.type === 'note') onNote?.(m.text);
-      else if (m.type === 'done') finish(() => { kickCollector('after download'); resolve(true); });
-      else if (m.type === 'unsupported') finish(() => { console.warn('download worker unavailable:', m.message); resolve(false); });
-      else if (m.type === 'error') finish(() => reject(new Error(m.message)));
-    };
-    worker.onerror = (e) => finish(() => { console.warn('download worker failed:', e.message); resolve(false); });
-    worker.postMessage({ type: 'download', base: filesBase, root: OPFS_DIR, jobs });
-  });
+  return Promise.resolve(false);
 }
 
 // Downloads the files OPFS doesn't already hold in full, one after another, counting into prog.
@@ -768,13 +753,11 @@ async function startAudio(M) {
 function sizeCanvas() {
   const canvas = $('canvas');
   if (!canvas) return;
-  const r = canvas.getBoundingClientRect();
-  const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
-  // Crisp Retina scaling with widescreen aspect ratio preserved
-  const w = Math.max(640, r.width * dpr);
-  const h = Math.max(480, r.height * dpr);
-  canvas.width = Math.round(w);
-  canvas.height = Math.round(h);
+  const r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+  // at least 640x480, scaled up evenly so the picture keeps the canvas's shape (a phone's stage is small)
+  const w = Math.max(1, r.width * dpr), h = Math.max(1, r.height * dpr), s = Math.max(1, 640 / w, 480 / h);
+  canvas.width = Math.round(w * s);
+  canvas.height = Math.round(h * s);
 }
 
 // A netplay session: every peer starts from the same empty saves folder, kept apart from this browser's
@@ -948,13 +931,10 @@ async function run(session) {
       if (params.has('log')) m.ENV.C07_LOG = '1';
       if (params.has('pads')) m.ENV.C07_PADS = params.get('pads');
       if (params.has('queue')) m.ENV.C07_QUEUE = params.get('queue');
-      m.ENV.C07_MSAA = '4';
-      m.ENV.RC_MSAA = '4';
       if (!session && !params.has('4x3')) {
         m.ENV.C07_WIDESCREEN = '1';
         m.ENV.RC_WIDESCREEN = '1';
       }
-      m.ENV.C07_REFRESH_HZ = '60';
       if (session) Object.assign(m.ENV, C07Netplay.gameEnv(session), { C07_USERDATA: '/opfs/' + netSaves(session) });
       m.ENV.C07_LOG_FPS = params.has('fps') ? '1' : '';
       if (!params.has('fps')) delete m.ENV.C07_LOG_FPS;
