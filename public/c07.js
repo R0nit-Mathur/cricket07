@@ -670,7 +670,30 @@ const padHats = new Set();   // gamepad.index of pads whose axes[9] is a hat swi
 const STD_FOR_RAW = [2, 0, 1, 3, 4, 5, 6, 7, 9, 8, 10, 11];
 // Chrome's hat axis: -1 = up, then clockwise in steps of 2/7; anything outside [-1, 1] is centred
 const HAT_DIRS = [1 << 12, (1 << 12) | (1 << 15), 1 << 15, (1 << 13) | (1 << 15), 1 << 13, (1 << 13) | (1 << 14), 1 << 14, (1 << 12) | (1 << 14)];
-const axis16 = (v) => Math.round(Math.max(-1, Math.min(1, v || 0)) * 32767);
+// Deadzone filtering to prevent stick drift on analog gamepads
+const DEADZONE = 0.12;
+const deadzone = (v) => {
+  const abs = Math.abs(v || 0);
+  if (abs < DEADZONE) return 0;
+  return Math.sign(v) * ((abs - DEADZONE) / (1 - DEADZONE));
+};
+const axis16 = (v) => Math.round(Math.max(-1, Math.min(1, deadzone(v))) * 32767);
+
+function triggerRumble(weak = 0.4, strong = 0.6, duration = 120) {
+  try {
+    const pads = navigator.getGamepads ? [...navigator.getGamepads()] : [];
+    for (const p of pads) {
+      if (p?.vibrationActuator?.playEffect) {
+        p.vibrationActuator.playEffect('dual-rumble', {
+          startDelay: 0,
+          duration: duration,
+          weakMagnitude: weak,
+          strongMagnitude: strong,
+        }).catch(() => {});
+      }
+    }
+  } catch (_) {}
+}
 
 function readPad(g) {
   let buttons = 0;
@@ -744,11 +767,14 @@ async function startAudio(M) {
 
 function sizeCanvas() {
   const canvas = $('canvas');
-  const r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
-  // at least 640x480, scaled up evenly so the picture keeps the canvas's shape (a phone's stage is small)
-  const w = Math.max(1, r.width * dpr), h = Math.max(1, r.height * dpr), s = Math.max(1, 640 / w, 480 / h);
-  canvas.width = Math.round(w * s);
-  canvas.height = Math.round(h * s);
+  if (!canvas) return;
+  const r = canvas.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  // Crisp Retina scaling with widescreen aspect ratio preserved
+  const w = Math.max(640, r.width * dpr);
+  const h = Math.max(480, r.height * dpr);
+  canvas.width = Math.round(w);
+  canvas.height = Math.round(h);
 }
 
 // A netplay session: every peer starts from the same empty saves folder, kept apart from this browser's
@@ -838,40 +864,45 @@ function bootDone() {
 
 async function installModernRoster(session) {
   if (!navigator.storage?.getDirectory) return;
-  try {
-    const res = await fetch('/rosters/MODERN26.ros/MODERN26.ros');
-    if (!res.ok) return;
-    const buf = await res.arrayBuffer();
-    const root = await navigator.storage.getDirectory();
-    const targets = [
-      'userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/MODERN26.ros/MODERN26.ros',
-      'userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/MODERN26.ros',
-      'userdata/EA SPORTS(TM) Cricket 07/MODERN26.ros/MODERN26.ros',
-      'userdata/EA SPORTS(TM) Cricket 07/MODERN26.ros',
-      'c07game/userdata/EA SPORTS(TM) Cricket 07/MODERN26.ros/MODERN26.ros',
-      'c07game/userdata/EA SPORTS(TM) Cricket 07/MODERN26.ros',
-    ];
-    if (session) {
-      const netDir = netSaves(session);
-      targets.push(
-        `${netDir}/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/MODERN26.ros/MODERN26.ros`,
-        `${netDir}/EA SPORTS(TM) Cricket 07/MODERN26.ros/MODERN26.ros`
-      );
-    }
-    for (const target of targets) {
-      try {
-        const handle = await fileHandle(root, target, true);
-        const w = await handle.createWritable();
-        await w.write(buf);
-        await w.close();
-      } catch (err) {
-        // Skip individual path collision silently
+  const patchItems = [
+    { url: '/rosters/MODERN26.ros/MODERN26.ros', name: 'MODERN26.ros' },
+    { url: '/patch/IPL_Trn.tmt', name: 'IPL_Trn.tmt' },
+    { url: '/patch/Trn_0.tmt', name: 'Trn_0.tmt' },
+    { url: '/patch/WC2011.ros', name: 'WC2011.ros' },
+    { url: '/patch/1024768.pro', name: '1024768.pro' },
+  ];
+  const root = await navigator.storage.getDirectory();
+  for (const item of patchItems) {
+    try {
+      const res = await fetch(item.url);
+      if (!res.ok) continue;
+      const buf = await res.arrayBuffer();
+      const targets = [
+        `userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+        `userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}`,
+        `userdata/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+        `userdata/EA SPORTS(TM) Cricket 07/${item.name}`,
+        `c07game/userdata/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+        `c07game/userdata/EA SPORTS(TM) Cricket 07/${item.name}`,
+      ];
+      if (session) {
+        const netDir = netSaves(session);
+        targets.push(
+          `${netDir}/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+          `${netDir}/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`
+        );
       }
-    }
-    console.log('[c07] Modern 2026 Roster installed in OPFS successfully.');
-  } catch (e) {
-    console.warn('[c07] Could not auto-install modern roster:', e);
+      for (const target of targets) {
+        try {
+          const handle = await fileHandle(root, target, true);
+          const w = await handle.createWritable();
+          await w.write(buf);
+          await w.close();
+        } catch (_) {}
+      }
+    } catch (_) {}
   }
+  console.log('[c07] Modern 2026 Rosters, IPL Tournaments & High-Res Profiles installed in OPFS successfully.');
 }
 
 async function run(session) {
@@ -917,7 +948,13 @@ async function run(session) {
       if (params.has('log')) m.ENV.C07_LOG = '1';
       if (params.has('pads')) m.ENV.C07_PADS = params.get('pads');
       if (params.has('queue')) m.ENV.C07_QUEUE = params.get('queue');
-      if (!session && !params.has('4x3')) m.ENV.C07_WIDESCREEN = '1';
+      m.ENV.C07_MSAA = '4';
+      m.ENV.RC_MSAA = '4';
+      if (!session && !params.has('4x3')) {
+        m.ENV.C07_WIDESCREEN = '1';
+        m.ENV.RC_WIDESCREEN = '1';
+      }
+      m.ENV.C07_REFRESH_HZ = '60';
       if (session) Object.assign(m.ENV, C07Netplay.gameEnv(session), { C07_USERDATA: '/opfs/' + netSaves(session) });
       m.ENV.C07_LOG_FPS = params.has('fps') ? '1' : '';
       if (!params.has('fps')) delete m.ENV.C07_LOG_FPS;
@@ -963,27 +1000,31 @@ async function run(session) {
 // Online play needs every game file (see laterFiles): until the background downloads finish, the online
 // screen shows their progress and its buttons stay off.
 async function waitForLater() {
-  const buttons = [$('np-host'), $('np-join')];
-  if ($('np-msg').textContent.startsWith('Online play needs')) $('np-msg').textContent = '';   // from before an upgrade
+  const npMsg = $('np-msg');
+  const npRetry = $('np-retry');
+  const buttons = [$('np-host'), $('np-join')].filter(Boolean);
+  if (npMsg && npMsg.textContent.startsWith('Online play needs')) npMsg.textContent = '';   // from before an upgrade
   if (gameMode === 'lite') {   // the other player has the full game: both need the same files
     for (const b of buttons) b.disabled = true;
-    $('np-msg').textContent = 'Online play needs the full game. Go back and choose "Get the full game".';
+    if (npMsg) npMsg.textContent = 'Online play needs the full game. Go back and choose "Get the full game".';
     return;
   }
   if (laterFiles.pending) {
     for (const b of buttons) b.disabled = true;
     const tick = setInterval(() => {
-      $('np-msg').textContent = `Online play needs the rest of the game files: ${mb(laterFiles.got)} / ` +
+      if (npMsg) npMsg.textContent = `Online play needs the rest of the game files: ${mb(laterFiles.got)} / ` +
         `${mb(laterFiles.total)} MB downloaded. You can play solo meanwhile.`;
     }, 500);
     await laterFiles.done;
     clearInterval(tick);
-    $('np-msg').textContent = '';
+    if (npMsg) npMsg.textContent = '';
   }
   for (const b of buttons) b.disabled = !!laterFiles.error;
-  if (laterFiles.error) $('np-msg').textContent = `A download failed (${laterFiles.error.message}).`;
-  $('np-retry').classList.toggle('hidden', !laterFiles.error);
-  $('np-retry').onclick = () => { fetchLater(laterFiles.manifest, gameMode); waitForLater(); };
+  if (laterFiles.error && npMsg) npMsg.textContent = `A download failed (${laterFiles.error.message}).`;
+  if (npRetry) {
+    npRetry.classList.toggle('hidden', !laterFiles.error);
+    npRetry.onclick = () => { fetchLater(laterFiles.manifest, gameMode); waitForLater(); };
+  }
 }
 
 // Every iOS browser is WebKit, so switching browsers can't help: WebGPU is on by default from iOS 26, and on
@@ -1262,7 +1303,10 @@ async function buildVersion() {
 }
 
 function setupOnline() {
-  const msg = (t) => { $('np-msg').textContent = t; $('np-lobbymsg').textContent = t; };
+  const msg = (t) => {
+    const m1 = $('np-msg'); if (m1) m1.textContent = t;
+    const m2 = $('np-lobbymsg'); if (m2) m2.textContent = t;
+  };
   try {
     $('np-name').value = localStorage.getItem('c07-name') || '';
     const region = localStorage.getItem('c07-region');
@@ -1347,14 +1391,14 @@ function setupOnline() {
         lastPlayers = l.players;
         const auto = C07Netplay.autoDelay(l.players);
         $('np-delay').options[0].textContent = `Auto (${auto} frames, ${Math.round(auto * 1000 / 60)} ms)`;
-        $('np-wait').classList.toggle('hidden', l.host);
+        $('np-wait')?.classList.toggle('hidden', l.host);
       },
       onStart(s) {
         session = { ...s, client, left };
         run(session).catch(fail);
       },
       onLeft(slot) { left.add(slot); },
-      onError(e) { msg(e); setTimeout(() => { if ($('np-msg').textContent === e) msg(''); }, 8000); },
+      onError(e) { msg(e); setTimeout(() => { const m = $('np-msg'); if (m && m.textContent === e) msg(''); }, 8000); },
       onClose() { if (!session && client === me) { client = null; show('online'); msg('Disconnected from the room.'); } },
     });
   }
@@ -1393,8 +1437,10 @@ function setupKbdHelp() {
   const off = () => { try { return localStorage.getItem('c07-kbd') === 'hide'; } catch { return false; } };
   const save = (v) => { try { localStorage.setItem('c07-kbd', v); } catch { /* storage blocked */ } };
   const apply = () => document.body.classList.toggle('kbd-off', off());
-  $('kbd-close').onclick = () => { save('hide'); apply(); };
-  $('kbd-show').onclick = () => { save('show'); apply(); };
+  const close = $('kbd-close');
+  if (close) close.onclick = () => { save('hide'); apply(); };
+  const showBtn = $('kbd-show');
+  if (showBtn) showBtn.onclick = () => { save('show'); apply(); };
   apply();
 }
 
@@ -1500,9 +1546,17 @@ function setupInstall() {
   window.addEventListener('appinstalled', () => box.classList.add('hidden'));
 }
 
-setupFullscreen();
-setupScreen();
-setupGate();
-setupInstall();
-setupKbdHelp();
-boot();
+try {
+  setupFullscreen();
+  setupScreen();
+  setupGate();
+  setupInstall();
+  setupKbdHelp();
+  boot().catch((err) => {
+    console.error('Cricket 07 startup error:', err);
+    status('Startup error: ' + (err?.message || err));
+  });
+} catch (err) {
+  console.error('Cricket 07 initialization error:', err);
+  status('Initialization error: ' + (err?.message || err));
+}
