@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/", "dest": "/site/index.html" },
+    { "src": "/play", "dest": "/site/play/index.html" },
+    { "src": "/play/(.*)", "dest": "/site/play/$1" },
+    { "src": "/(.*)", "dest": "/site/$1" }
+  ]
+}
