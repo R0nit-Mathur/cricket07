@@ -4,9 +4,55 @@
     { "src": "site/**/*.*", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/", "dest": "/site/index.html" },
-    { "src": "/play", "dest": "/site/play/index.html" },
-    { "src": "/play/(.*)", "dest": "/site/play/$1" },
-    { "src": "/(.*)", "dest": "/site/$1" }
+    { "src": "/favicon.ico", "dest": "/site/play/favicon.ico", "headers": {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    } },
+    { "src": "/_netplay_ticket", "dest": "https://cricket07-netplay.ronit-oct11.workers.dev/_netplay_ticket", "headers": {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    } },
+    { "src": "/netplay/(.*)", "dest": "https://cricket07-netplay.ronit-oct11.workers.dev/netplay/$1", "headers": {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    } },
+    { "src": "/game/(.*)", "dest": "https://cricket07.dhaiwat.com/game/$1", "headers": {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    } },
+    { "src": "/mods/(.*)", "dest": "/site/mods/$1", "headers": {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    } },
+    { "src": "/build/(.*)", "dest": "/site/play/build/$1", "headers": {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    } },
+    { "src": "/play", "dest": "/site/play/index.html", "headers": {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    } },
+    { "src": "/play/(.*)", "dest": "/site/play/$1", "headers": {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    } },
+    { "src": "/", "dest": "/site/play/index.html", "headers": {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    } },
+    { "src": "/(.*)", "dest": "/site/play/$1", "headers": {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    } }
   ]
 }
