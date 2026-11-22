@@ -853,6 +853,22 @@ async function installModernRoster(session) {
     { url: '/patch/Trn_0.tmt', name: 'Trn_0.tmt' },
     { url: '/patch/WC2011.ros', name: 'WC2011.ros' },
     { url: '/patch/1024768.pro', name: '1024768.pro' },
+    // 2026 IPL & International HD Kits & Stadium Textures
+    { url: '/patch/c032.fsh', name: 'c032.fsh', isTexture: true },
+    { url: '/patch/c002.fsh', name: 'c002.fsh', isTexture: true },
+    { url: '/patch/c040.fsh', name: 'c040.fsh', isTexture: true },
+    { url: '/patch/c041.fsh', name: 'c041.fsh', isTexture: true },
+    { url: '/patch/c042.fsh', name: 'c042.fsh', isTexture: true },
+    { url: '/patch/c043.fsh', name: 'c043.fsh', isTexture: true },
+    { url: '/patch/c044.fsh', name: 'c044.fsh', isTexture: true },
+    { url: '/patch/c045.fsh', name: 'c045.fsh', isTexture: true },
+    { url: '/patch/c046.fsh', name: 'c046.fsh', isTexture: true },
+    { url: '/patch/c047.fsh', name: 'c047.fsh', isTexture: true },
+    { url: '/patch/c048.fsh', name: 'c048.fsh', isTexture: true },
+    { url: '/patch/c049.fsh', name: 'c049.fsh', isTexture: true },
+    { url: '/patch/pitch.fsh', name: 'pitch.fsh', isTexture: true },
+    { url: '/patch/adboards.fsh', name: 'adboards.fsh', isTexture: true },
+    { url: '/patch/ball.fsh', name: 'ball.fsh', isTexture: true },
   ];
   const root = await navigator.storage.getDirectory();
   for (const item of patchItems) {
@@ -860,20 +876,25 @@ async function installModernRoster(session) {
       const res = await fetch(item.url);
       if (!res.ok) continue;
       const buf = await res.arrayBuffer();
-      const targets = [
-        `userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
-        `userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}`,
-        `userdata/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
-        `userdata/EA SPORTS(TM) Cricket 07/${item.name}`,
-        `c07game/userdata/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
-        `c07game/userdata/EA SPORTS(TM) Cricket 07/${item.name}`,
-      ];
-      if (session) {
-        const netDir = netSaves(session);
+      const targets = [];
+      if (item.isTexture) {
+        targets.push(`c07game/${item.name}`, `c07game/Data/${item.name}`);
+      } else {
         targets.push(
-          `${netDir}/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
-          `${netDir}/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`
+          `userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+          `userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}`,
+          `userdata/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+          `userdata/EA SPORTS(TM) Cricket 07/${item.name}`,
+          `c07game/userdata/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+          `c07game/userdata/EA SPORTS(TM) Cricket 07/${item.name}`,
         );
+        if (session) {
+          const netDir = netSaves(session);
+          targets.push(
+            `${netDir}/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+            `${netDir}/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`
+          );
+        }
       }
       for (const target of targets) {
         try {
@@ -885,7 +906,7 @@ async function installModernRoster(session) {
       }
     } catch (_) {}
   }
-  console.log('[c07] Modern 2026 Rosters, IPL Tournaments & High-Res Profiles installed in OPFS successfully.');
+  console.log('[c07] Modern 2026 Rosters, IPL Tournaments, Kits & High-Res Profiles installed in OPFS successfully.');
 }
 
 async function run(session) {
