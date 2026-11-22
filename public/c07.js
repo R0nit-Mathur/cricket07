@@ -927,17 +927,21 @@ async function run(session) {
       location.replace(u);
     },
     preRun: [(m) => {
+      if (params.has('log')) {
+        m.ENV.C07_LOG = '1';
+        m.ENV.RC_LOG = '1';
+        m.ENV.RC_LOG_D3D = '1';
+      }
+      if (params.has('fps')) m.ENV.C07_LOG_FPS = '1';
       if (params.has('mute')) m.ENV.C07_NO_AUDIO = '1';
-      if (params.has('log')) m.ENV.C07_LOG = '1';
       if (params.has('pads')) m.ENV.C07_PADS = params.get('pads');
       if (params.has('queue')) m.ENV.C07_QUEUE = params.get('queue');
+      m.ENV.RC_MSAA = '4';
       if (!session && !params.has('4x3')) {
         m.ENV.C07_WIDESCREEN = '1';
         m.ENV.RC_WIDESCREEN = '1';
       }
       if (session) Object.assign(m.ENV, C07Netplay.gameEnv(session), { C07_USERDATA: '/opfs/' + netSaves(session) });
-      m.ENV.C07_LOG_FPS = params.has('fps') ? '1' : '';
-      if (!params.has('fps')) delete m.ENV.C07_LOG_FPS;
     }],
   });
   bootStep('gpu');
@@ -956,8 +960,9 @@ async function run(session) {
   const shown = { any: false, done: false };   // until the game runs (bootDone)
   const presented = () => {
     if (!shown.any) { shown.any = true; bootStep('data'); }
-    if (gameMode === 'full' || M._c07_frames_drawn() >= 12) { shown.done = true; bootDone(); }   // lite: ~4 black frames first
+    if (M._c07_frames_drawn() >= 4) { shown.done = true; bootDone(); }
   };
+  setTimeout(() => { if (!shown.done) { shown.done = true; bootDone(); } }, 6000);
   const frame = (t) => {
     poll(M);
     if (TOUCH) touchMenuMode(M);
@@ -1157,8 +1162,16 @@ async function boot() {
 // full game), resuming any partial copy, then starts the background files. False if it failed.
 async function install(manifest, mode) {
   const marker = await readMarker();
-  if (marker?.version !== manifest.version || (marker?.mode || 'full') !== mode) {
-    const files = filesFor(manifest, mode).filter((f) => !f.later);
+  const dir = await gameDir(true);
+  const files = filesFor(manifest, mode).filter((f) => !f.later);
+  let anyMissing = false;
+  for (const f of files) {
+    if (await existingSize(dir, f.path) !== f.size) {
+      anyMissing = true;
+      break;
+    }
+  }
+  if (marker?.version !== manifest.version || (marker?.mode || 'full') !== mode || anyMissing) {
     const prog = new Progress();
     prog.total = files.reduce((s, f) => s + netSize(f), 0);
     const stop = showProgress(prog);
@@ -1166,7 +1179,6 @@ async function install(manifest, mode) {
       await checkSpace(filesFor(manifest, mode).reduce((s, f) => s + f.size, 0));
       // a file both versions have under one name (Audio/music.big) may hold the other version's copy,
       // which downloadFile would otherwise resume as if it were the start of this one
-      const dir = await gameDir(true);
       for (const o of manifest.files.filter((f) => f.mode && f.mode !== mode))
         if (await existingSize(dir, o.path) === o.size) await removeAt(dir, o.path);
       await downloadAll(files, prog);

@@ -34,13 +34,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="wide" suppressHydrationWarning>
       <head>
-        <link
-          rel="preload"
-          href="/inter-latin.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
         <script
           dangerouslySetInnerHTML={{
             __html: `

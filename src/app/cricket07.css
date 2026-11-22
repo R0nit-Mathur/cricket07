@@ -44,7 +44,15 @@
   @media (min-width: 1120px) {
     body:not(.kbd-off) #stage { width: min(calc(100% - 440px), calc((100vh - 72px) * var(--ar-w) / var(--ar-h))); }
   }
-  canvas { width: 100%; height: 100%; display: block; cursor: none; outline: none; }   /* focused for the keys: no focus ring */
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: none;
+    outline: none;
+    image-rendering: high-quality;
+    filter: contrast(1.08) saturate(1.18) brightness(1.02);
+  }   /* focused for the keys: no focus ring; broadcast color-grading applied */
   .hidden { display: none !important; }
 
   /* the launcher: a dark pitch with a soft floodlight from above */
