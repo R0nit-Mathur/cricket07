@@ -19,7 +19,7 @@
       "Cross-Origin-Embedder-Policy": "require-corp",
       "Cross-Origin-Resource-Policy": "cross-origin"
     } },
-    { "src": "/game/(.*)", "dest": "https://cricket07.dhaiwat.com/game/$1", "headers": {
+    { "src": "/game/(.*)", "dest": "https://games.mickykharbanda.com/cricket07/play/game/$1", "headers": {
       "Cross-Origin-Opener-Policy": "same-origin",
       "Cross-Origin-Embedder-Policy": "require-corp",
       "Cross-Origin-Resource-Policy": "cross-origin"
