@@ -65,6 +65,12 @@ export default function Cricket07Page() {
               <path id="fs-icon" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
             </svg>
           </button>
+          <button id="enb-btn" title="Toggle ENB Graphics Mod (Shift+F12)" aria-label="Toggle ENB Shaders">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+            </svg>
+            <span id="enb-label">ENB: IPL Night</span>
+          </button>
           <div id="touch" aria-hidden="true">
             <div id="tpad"><svg viewBox="0 0 132 132" fill="currentColor"><path d="M66 10l7 9h-14zM66 122l7-9h-14zM10 66l9-7v14zM122 66l-9-7v14z" /></svg><div className="knob"></div></div>
             <div id="tdpad">

@@ -847,54 +847,51 @@ function bootDone() {
 
 async function installModernRoster(session) {
   if (!navigator.storage?.getDirectory) return;
+  const root = await navigator.storage.getDirectory();
+
+  // Clean up any corrupting loose textures from previous sessions to prevent crashes after toss
+  try {
+    const c07Dir = await gameDir(false);
+    if (c07Dir) {
+      const badFiles = ['c032.fsh', 'c002.fsh', 'c040.fsh', 'c041.fsh', 'c042.fsh', 'c043.fsh', 'c044.fsh', 'c045.fsh', 'c046.fsh', 'c047.fsh', 'c048.fsh', 'c049.fsh', 'pitch.fsh', 'adboards.fsh', 'ball.fsh'];
+      for (const f of badFiles) {
+        try { await c07Dir.removeEntry(f); } catch {}
+      }
+      try {
+        const dataDir = await c07Dir.getDirectoryHandle('Data', { create: false });
+        for (const f of badFiles) {
+          try { await dataDir.removeEntry(f); } catch {}
+        }
+      } catch {}
+    }
+  } catch {}
+
   const patchItems = [
     { url: '/rosters/MODERN26.ros/MODERN26.ros', name: 'MODERN26.ros' },
     { url: '/patch/IPL_Trn.tmt', name: 'IPL_Trn.tmt' },
     { url: '/patch/Trn_0.tmt', name: 'Trn_0.tmt' },
     { url: '/patch/WC2011.ros', name: 'WC2011.ros' },
     { url: '/patch/1024768.pro', name: '1024768.pro' },
-    // 2026 IPL & International HD Kits & Stadium Textures
-    { url: '/patch/c032.fsh', name: 'c032.fsh', isTexture: true },
-    { url: '/patch/c002.fsh', name: 'c002.fsh', isTexture: true },
-    { url: '/patch/c040.fsh', name: 'c040.fsh', isTexture: true },
-    { url: '/patch/c041.fsh', name: 'c041.fsh', isTexture: true },
-    { url: '/patch/c042.fsh', name: 'c042.fsh', isTexture: true },
-    { url: '/patch/c043.fsh', name: 'c043.fsh', isTexture: true },
-    { url: '/patch/c044.fsh', name: 'c044.fsh', isTexture: true },
-    { url: '/patch/c045.fsh', name: 'c045.fsh', isTexture: true },
-    { url: '/patch/c046.fsh', name: 'c046.fsh', isTexture: true },
-    { url: '/patch/c047.fsh', name: 'c047.fsh', isTexture: true },
-    { url: '/patch/c048.fsh', name: 'c048.fsh', isTexture: true },
-    { url: '/patch/c049.fsh', name: 'c049.fsh', isTexture: true },
-    { url: '/patch/pitch.fsh', name: 'pitch.fsh', isTexture: true },
-    { url: '/patch/adboards.fsh', name: 'adboards.fsh', isTexture: true },
-    { url: '/patch/ball.fsh', name: 'ball.fsh', isTexture: true },
   ];
-  const root = await navigator.storage.getDirectory();
   for (const item of patchItems) {
     try {
       const res = await fetch(item.url);
       if (!res.ok) continue;
       const buf = await res.arrayBuffer();
-      const targets = [];
-      if (item.isTexture) {
-        targets.push(`c07game/${item.name}`, `c07game/Data/${item.name}`);
-      } else {
+      const targets = [
+        `userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+        `userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}`,
+        `userdata/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+        `userdata/EA SPORTS(TM) Cricket 07/${item.name}`,
+        `c07game/userdata/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+        `c07game/userdata/EA SPORTS(TM) Cricket 07/${item.name}`,
+      ];
+      if (session) {
+        const netDir = netSaves(session);
         targets.push(
-          `userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
-          `userdata/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}`,
-          `userdata/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
-          `userdata/EA SPORTS(TM) Cricket 07/${item.name}`,
-          `c07game/userdata/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
-          `c07game/userdata/EA SPORTS(TM) Cricket 07/${item.name}`,
+          `${netDir}/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
+          `${netDir}/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`
         );
-        if (session) {
-          const netDir = netSaves(session);
-          targets.push(
-            `${netDir}/Documents and Settings/Player/My Documents/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`,
-            `${netDir}/EA SPORTS(TM) Cricket 07/${item.name}/${item.name}`
-          );
-        }
       }
       for (const target of targets) {
         try {
@@ -906,7 +903,7 @@ async function installModernRoster(session) {
       }
     } catch (_) {}
   }
-  console.log('[c07] Modern 2026 Rosters, IPL Tournaments, Kits & High-Res Profiles installed in OPFS successfully.');
+  console.log('[c07] Modern 2026 Rosters, IPL Tournaments & High-Res Profiles installed in OPFS successfully.');
 }
 
 async function run(session) {
@@ -1304,6 +1301,56 @@ function fullscreenTip() {
   setTimeout(() => tip.classList.add('hidden'), 5500);
 }
 
+// ------------------------------------------------------------------ ENBSeries 2026 Graphics Enhancer
+const ENB_PRESETS = [
+  { id: 'enb-ipl', label: 'ENB: IPL Night', desc: 'TATA IPL Night Match (High Contrast + Floodlight Bloom)' },
+  { id: 'enb-hdr', label: 'ENB: Broadcast HDR', desc: '4K Sports Broadcast HDR (Vivid Colors + Sharpening)' },
+  { id: 'enb-day', label: 'ENB: World Cup Day', desc: 'ICC World Cup Day Match (Sunlight Warmth + Natural Turf)' },
+  { id: 'enb-off', label: 'ENB: Off (2006)', desc: 'Classic 2006 (Vanilla Unmodified Look)' },
+];
+let currentEnb = 0;
+
+function applyEnb(idx, showToast = true) {
+  const stage = $('stage');
+  if (!stage) return;
+  currentEnb = (idx + ENB_PRESETS.length) % ENB_PRESETS.length;
+  const p = ENB_PRESETS[currentEnb];
+  stage.classList.remove('enb-ipl', 'enb-hdr', 'enb-day', 'enb-off');
+  stage.classList.add(p.id);
+  const lbl = $('enb-label');
+  if (lbl) lbl.textContent = p.label;
+  try { localStorage.setItem('c07-enb-preset', p.id); } catch {}
+  if (showToast) {
+    let hud = $('enb-hud');
+    if (!hud) {
+      hud = document.createElement('div');
+      hud.id = 'enb-hud';
+      stage.appendChild(hud);
+    }
+    hud.textContent = `⚡ ENB Graphics: ${p.desc} (Shift+F12)`;
+    hud.style.animation = 'none';
+    void hud.offsetWidth; // trigger reflow
+    hud.style.animation = 'enbFade 3.2s forwards';
+  }
+}
+
+function setupEnb() {
+  const saved = localStorage.getItem('c07-enb-preset') || 'enb-ipl';
+  const found = ENB_PRESETS.findIndex((p) => p.id === saved);
+  applyEnb(found >= 0 ? found : 0, false);
+
+  const btn = $('enb-btn');
+  if (btn) btn.onclick = () => applyEnb(currentEnb + 1, true);
+
+  window.addEventListener('keydown', (e) => {
+    // Shift + F12 (classic ENBSeries shortcut from GTA & Cricket 07 mods)
+    if (e.key === 'F12' && e.shiftKey) {
+      e.preventDefault();
+      applyEnb(currentEnb + 1, true);
+    }
+  });
+}
+
 // ------------------------------------------------------------------ online lobby
 
 async function buildVersion() {
@@ -1561,6 +1608,7 @@ function setupInstall() {
 
 try {
   setupFullscreen();
+  setupEnb();
   setupScreen();
   setupGate();
   setupInstall();

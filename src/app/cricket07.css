@@ -44,6 +44,9 @@
   @media (min-width: 1120px) {
     body:not(.kbd-off) #stage { width: min(calc(100% - 440px), calc((100vh - 72px) * var(--ar-w) / var(--ar-h))); }
   }
+  /* ==========================================================================
+     ENBSeries 2026 Graphics Enhancer (GTA-style Post-Processing & Stadium Lighting)
+     ========================================================================== */
   canvas {
     width: 100%;
     height: 100%;
@@ -51,8 +54,119 @@
     cursor: none;
     outline: none;
     image-rendering: high-quality;
-    filter: contrast(1.08) saturate(1.18) brightness(1.02);
-  }   /* focused for the keys: no focus ring; broadcast color-grading applied */
+    filter: contrast(1.12) saturate(1.24) brightness(1.03);
+    transition: filter 0.25s ease;
+  }
+
+  /* Preset 1: TATA IPL Night Match (Default) - Deep stadium night, radiant floodlight glow, saturated team jerseys */
+  #stage.enb-ipl canvas {
+    filter: contrast(1.15) saturate(1.28) brightness(1.04) hue-rotate(-2deg);
+  }
+
+  /* Preset 2: ICC World Cup Day Match - Crisp sunlight, warm turf greens, true pitch shadow */
+  #stage.enb-day canvas {
+    filter: contrast(1.08) saturate(1.18) brightness(1.05) sepia(0.04);
+  }
+
+  /* Preset 3: Ultra Broadcast HDR - Wide dynamic range, sharp pitch cracks, saturated team colors */
+  #stage.enb-hdr canvas {
+    filter: contrast(1.18) saturate(1.34) brightness(1.02);
+  }
+
+  /* Preset 4: Classic 2006 (Vanilla) */
+  #stage.enb-off canvas {
+    filter: none;
+  }
+
+  /* Stadium Floodlight Bloom & Glare Overlay */
+  #stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    background:
+      radial-gradient(ellipse 60% 30% at 20% 0%, rgba(255, 248, 220, 0.12), transparent 70%),
+      radial-gradient(ellipse 60% 30% at 80% 0%, rgba(255, 248, 220, 0.12), transparent 70%),
+      radial-gradient(circle 75% at 50% 100%, rgba(34, 197, 94, 0.04), transparent 70%);
+    mix-blend-mode: screen;
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Cinematic Broadcast Vignette & Lens Flare */
+  #stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 11;
+    background: radial-gradient(circle at 50% 50%, transparent 62%, rgba(0, 0, 0, 0.42) 100%);
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+
+  #stage.enb-off::before,
+  #stage.enb-off::after {
+    display: none;
+  }
+
+  /* Floating ENB HUD Notification (Shift + F12) */
+  #enb-hud {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    background: rgba(10, 15, 12, 0.92);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(74, 222, 128, 0.4);
+    color: #4ade80;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 16px rgba(74, 222, 128, 0.25);
+    animation: enbFade 3.2s forwards;
+    pointer-events: none;
+  }
+
+  @keyframes enbFade {
+    0% { opacity: 0; transform: translate(-50%, -10px); }
+    12% { opacity: 1; transform: translate(-50%, 0); }
+    85% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -10px); }
+  }
+
+  /* On-Stage ENB Quick Switcher Button */
+  #enb-btn {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    z-index: 25;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #f4f4f5;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 11px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+  #enb-btn:hover {
+    background: rgba(74, 222, 128, 0.22);
+    border-color: #4ade80;
+    color: #4ade80;
+  }
   .hidden { display: none !important; }
 
   /* the launcher: a dark pitch with a soft floodlight from above */
