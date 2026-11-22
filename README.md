@@ -1,107 +1,80 @@
-# cricket07
+# Cricket 07 — The Micky Edit
 
-<div align="center">
+A personal landing page, playable browser shell, source download and AI customization kit by Karan Singh, also known online as Micky. Instagram: [@whymickywhy](https://www.instagram.com/whymickywhy/). X: [@mickykharbanda](https://x.com/mickykharbanda). Work: [Clearlyy](https://clearlyy.io). LinkedIn: [Karan Singh](https://www.linkedin.com/in/karansinghworks).
 
-# 🏏 EA SPORTS™ Cricket 07 — Web Port
+This extends [Dhaiwat Pandya's Cricket 07 browser port](https://github.com/Dhaiwat10/cricket07-browser). The complete upstream source is retained in `engine/`, including its build instructions, licenses and contributor credits. The original browser port and recompilation are not Micky's original work. The additions here are the modern squad/kit pack, browser save-file tools, installation fixes, personal page and customization prompts.
 
-### Made by Sarang Studios (Ronit Mathur)
+## What's here
 
-A modern, high-performance web port of **EA Sports Cricket 07 (2006)** running directly in modern web browsers via WebAssembly, WebGPU, WebAudio, and WebRTC.
+- `site/`: responsive landing page and browser launcher. The public launcher downloads hosted game resources automatically into OPFS browser storage, using resumable, SHA-256 verified chunks.
+- `engine/`: the upstream translator, host, runtime and build tools, pinned by the included source snapshot.
+- `mods/modern-2026/`: eleven teams, 200 distinct player records, native-resource manifest, fan kit sources and official squad-reference snapshots.
+- `mods/world-2026/` (**NEW**): the 2026 Teams roster. Every nation's latest ODI/T20I squad, the ten IPL sides, World XI 2026 and the OG World, All-Time Test, ODI and T20 XIs. Built by `mod-tools/build_world_2026.py`; see its README.
+- `mod-tools/`: archive/texture helpers and roster builder. The builder reads `game/Data/data.gob` from your own copy. Python dependencies: Pillow (DDS encoding), CairoSVG and a working Cairo library.
+- `tools/`: publication packaging and local serving.
+- `content/`: copyable prompts and local-play instructions.
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.3-black?style=flat&logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-blue?style=flat&logo=react)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+Original EA executables, Data/Audio archives, generated game C code and compiled WebAssembly are not included in the source repository or source ZIP. The separately hosted browser-build ZIP includes the prebuilt runtime, mod resources and the explicitly requested game EXE in a separate `game-executable/` folder. The same EXE is available as its own download. The browser downloads matching resources automatically from the hosted edition. The standalone Windows EXE still needs its matching Data/Audio folders. The supplied file is the compatible unprotected build used by this project, not a claim of a signed retail installer. Do not mistake the upstream MIT license for a license to redistribute EA's commercial game assets or team/player trademarks.
 
-</div>
+## Play
 
----
+Use a desktop/laptop with keyboard/controller and a WebGPU-capable browser. Game files download automatically on first launch (about 1.17 GB), resume after interruptions and remain cached in that browser. No folder picker is required. The launcher offers three rosters: **2026 Teams** (new, the default), **OG + IPL** and **Original**. In 2026 Teams the nations are in **International**, and the IPL sides and dream XIs are in **Other**. In OG + IPL, India ODI 2026 and the IPL teams are in **Other**. Eleven A-team/invitational slots are repurposed in expanded mode; Original teams restores every secondary side too.
 
-## 🌟 Key Features
+Native save files are retained locally with backup/restore controls. There is no instant save-state system or new save-anywhere feature. The public edition is solo/local play; upstream multiplayer requires deploying its own room service. Do not expose the local tunnel server or proxy someone else's assets or signaling endpoint as a substitute.
 
-- **🎮 1:1 Gameplay Experience:** Complete recreation of the legendary PC classic with 60 FPS gameplay, authentic commentary, replays, camera cuts, and stadium environments.
-- **🏏 2026 Modern Squads & Rosters:** Updated rosters (`MODERN26.ros`) featuring authentic names and accurate ratings for **India, SENA (South Africa, England, New Zealand, Australia), and Pakistan**:
-  - **India:** Rohit Sharma (C - 92), Virat Kohli (96), Jasprit Bumrah (97), Shubman Gill (88), Yashasvi Jaiswal (89), Rishabh Pant (89), Hardik Pandya (88), Ravindra Jadeja (90), Mohammed Shami (91), Mohammed Siraj (88), Kuldeep Yadav (89), Axar Patel (86).
-  - **Australia:** Pat Cummins (C - 95), Travis Head (92), Steve Smith (94), Marnus Labuschagne (88), Glenn Maxwell (89), Mitchell Starc (93), Josh Hazlewood (93), Adam Zampa (90), Nathan Lyon (91).
-  - **England:** Jos Buttler (C - 91), Ben Stokes (93), Joe Root (95), Harry Brook (90), Jonny Bairstow (87), Chris Woakes (87), Jofra Archer (91), Mark Wood (90), Adil Rashid (89).
-  - **South Africa:** Temba Bavuma (C - 86), Quinton de Kock (92), Aiden Markram (89), Heinrich Klaasen (92), David Miller (89), Kagiso Rabada (94), Anrich Nortje (90), Keshav Maharaj (88).
-  - **New Zealand:** Kane Williamson (C - 94), Devon Conway (88), Daryl Mitchell (89), Glenn Phillips (87), Rachin Ravindra (89), Trent Boult (91), Tim Southee (88), Matt Henry (88).
-  - **Pakistan:** Babar Azam (C - 93), Mohammad Rizwan (90), Fakhar Zaman (87), Saim Ayub (85), Shaheen Shah Afridi (93), Naseem Shah (89), Haris Rauf (88).
-- **⚡ Fixed Bowling Controls (Keys 1–8):** Direct 1:1 mapping from number row / numpad keys **1 through 8** directly to bowling delivery variations on the bowling HUD:
-  - <kbd>1</kbd>: Stock delivery
-  - <kbd>2</kbd>–<kbd>8</kbd>: Delivery variations & special balls
-- **🌐 100% Free-Tier Deployment:**
-  - **Vercel:** Frontend, static assets, WASM binaries & roster files
-  - **Cloudflare Workers:** Ticket and signaling authentication (`/_netplay_ticket`)
-  - **Cloudflare Durable Objects:** Netplay room lobbies & input relays
-  - **WebRTC DataChannels:** Deterministic peer-to-peer 60 FPS online gameplay
-  - **Public STUN:** NAT traversal via Cloudflare (`stun.cloudflare.com:3478`) and Google (`stun.l.google.com:19302`)
+## Build the site
 
----
+First build a compatible browser runtime from your own game executable by following `engine/README.md`. Then:
 
-## 🕹️ Controls Guide
-
-### Batting
-- **Normal shot:** <kbd>S</kbd>
-- **Lofted shot (hold):** <kbd>Shift</kbd>
-- **Advanced / footwork:** <kbd>D</kbd>
-- **Shot direction:** Arrow keys (<kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd>)
-- **Take run / Cancel run:** <kbd>D</kbd> / <kbd>A</kbd>
-
-### Bowling (Deliveries 1–8)
-- **Delivery 1 (Stock):** <kbd>1</kbd> or <kbd>S</kbd>
-- **Delivery 2 (Variation 2):** <kbd>2</kbd> or <kbd>D</kbd>
-- **Delivery 3 (Variation 3):** <kbd>3</kbd> or <kbd>A</kbd>
-- **Delivery 4 (Variation 4):** <kbd>4</kbd> or <kbd>W</kbd>
-- **Delivery 5 (Variation 5):** <kbd>5</kbd> or <kbd>Shift</kbd>
-- **Delivery 6 (Variation 6):** <kbd>6</kbd> or <kbd>Alt</kbd>
-- **Delivery 7–8:** <kbd>7</kbd>, <kbd>8</kbd> or <kbd>Ctrl</kbd>, <kbd>Space</kbd>
-- **Pitch marker position:** Arrow keys (<kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd>)
-
----
-
-## 🚀 Quick Start (Local Development)
-
-```bash
-# Clone the repository
-git clone https://github.com/R0nit-Mathur/cricket07.git
-cd cricket07
-
-# Install dependencies (using pnpm)
-pnpm install
-
-# Start development / production server
-PORT=8007 node server/start.mjs
+```sh
+python3 tools/build_site.py --runtime /path/to/compiled/build --game-exe /path/to/compatible/Cricket07.exe --game-dir /path/to/game
+python3 tools/serve.py --directory dist --port 8086
 ```
 
-Open [http://localhost:8007](http://localhost:8007) in any modern browser supporting WebGPU.
+Open http://localhost:8086. The build creates `dist/`, a source ZIP, all prompts as Markdown and a separate ready-to-run browser-build ZIP. It uses an allowlist, rejects secret-file names, verifies the explicitly supplied EXE, and stages only files listed in the supplied game manifest as content-addressed 8 MB chunks. The source ZIP retains the complete upstream MIT license and the original engine source. Original resources are hosted as browser-download chunks, separate from the source ZIP. The portable browser ZIP references these hosted chunks and needs internet on its first launch.
 
----
+To edit the roster, put your own original archive at `game/Data/data.gob`, then run `python3 mod-tools/build_modern_2026.py` in a Pillow/CairoSVG environment. Never overwrite the original archive. The builder checks 943 protected OG player records and 52 protected squads. Fan-created kits and proxy/generic player abilities do not claim authentic 2026 faces or official ratings. Old commentary/stadiums remain.
 
-## ☁️ Deployment
-
-### 1. Vercel (Frontend & WebAssembly)
-Connect this repository to Vercel. Required headers are pre-configured in `vercel.json` and `next.config.ts`:
-- `Cross-Origin-Opener-Policy: same-origin`
-- `Cross-Origin-Embedder-Policy: require-corp`
-- `Cross-Origin-Resource-Policy: cross-origin`
-
-### 2. Cloudflare Workers (Multiplayer Rooms)
-```bash
-cd server
-npx wrangler deploy
-npx wrangler secret put NETPLAY_SECRET
+```sh
+node --test mod-tools/workers.test.cjs
 ```
 
----
+These checks cover archive restoration, pack upgrades, rejected corrupt downloads, installer resuming and quota recovery. A live-match smoke test does not prove every tour or tournament is compatible.
 
-## 👤 Author & Owner
+## Publish to Netlify
 
-**Sharang Studios (Ronit Mathur)**
-- GitHub: [@R0nit-Mathur](https://github.com/R0nit-Mathur)
+Publish **only `dist/`**, never the surrounding OYT workspace or the original game folder. `netlify.toml` sets the cross-origin isolation headers required by WebAssembly threads and WebGPU. The landing page is mobile-friendly; the game has no touch controls. Build locally, then use `netlify deploy --dir=dist --no-build` for a preview and `--prod` after verification. Keep `.netlify/` and credential files untracked. The game runs entirely in the browser and needs no game server or email gate.
 
----
+Netlify's standard hostname is `cricket07-whymickywhy.netlify.app`. A nested name such as `cricket07.whymickywhy.netlify.com` is not a normal Netlify site hostname. For a custom nested hostname, use a domain you own and configure DNS. For high traffic, review hosting bandwidth/credit usage before adding large automatic game downloads.
 
-## 📜 Legal & Disclaimer
+## AI prompts
 
-EA SPORTS™ Cricket 07 is a trademark of Electronic Arts Inc. This open-source preservation and web recompilation project is built for educational, research, and non-commercial archival purposes.
+See `content/CUSTOMIZE-WITH-AI.md`. These starter prompts were written for this customization kit. They are not transcripts of how the original game or browser port was created. Use a coding assistant with file access, supply accurate player/reference data, preserve OG teams, and test changes in an actual match.
+
+## Credits
+
+- Cricket 07 / EA Sports: Electronic Arts, not affiliated with or sponsoring this project.
+- Browser port and upstream open-source software: Dhaiwat Pandya and contributors. Its README credits Stephan Cilliers for the Rugby 06 scheduler/netplay port and controller support.
+- This edition's page and customizations: Micky Kharbanda.
+- Squad sources: BCCI's October 2026 ODI announcement and official IPL 2026 team endpoints, recorded in the mod manifest/reference snapshots.
+- Bricolage Grotesque and DM Sans: open fonts; licenses are in `LICENSES/`.
+
+Keep the included upstream `LICENSE` with all redistributed code. The source bundle is MIT-licensed for code; game data, trademarks, public reference imagery and the compiled game-specific runtime have their own ownership. No promise is made of compatibility with every game release or existing mod.
+
+## Profile and supplied EXE
+
+The expanded profile identifies Karan Singh / Micky as a Clearlyy co-founder. The photo and work description are sourced from the public Clearlyy site; the requested LinkedIn profile is linked directly. LinkedIn page contents were unavailable to the research tools, so no LinkedIn-only employment history was invented. Photo source: https://clearlyy.io/__l5e/assets-v1/c1c1feff-9308-4f39-9bd6-06073d5403ab/karan-formal.jpg .
+
+The separately supplied Windows game executable is 4,354,048 bytes, SHA-256 `d776dba0cc506b968f7d228e036cf42aeb4abe45a8d1ad0d7226cdebf91553a2`. It is excluded from the MIT source ZIP and source repository. Its original local filename was `Cricket07.cracked.exe`; the public filename is `Cricket07.exe`. Its ownership is separate from the open-source software license. Original Data and Audio resources are hosted separately as verified chunks for automatic browser downloads, and are excluded from the source repository and ZIP. The modern team/kit pack applies to the browser build, not to this EXE by itself.
+
+## Visitor analytics
+
+Cloudflare Web Analytics is installed on the landing page and game launcher, registered to `cricket07-whymickywhy.netlify.app` in Micky's Cloudflare account. The public beacon token identifies the site; it does not grant dashboard access. View visits and page views privately at https://dash.cloudflare.com/3fb775a6edefa8f3b530ca6327c14289/web-analytics/overview?siteTag~in=3ebfb4873c6948d4a17d69b7f9cf8e09&excludeBots=Yes . Counts start after installation and may take time to appear; blocked scripts and browsers that block telemetry can reduce counts. No advertising pixel is installed.
+
+## Personal link page
+
+The mobile bio page lives at https://whymickywhy.netlify.app/ and its editable source is `site/links/index.html`. It highlights Cricket 07 with separate copy/open actions and links to Instinct, Clearlyy, Instagram, X and LinkedIn. The Instinct invite uses the direct destination supplied by Micky, without the Instagram redirect wrapper. `python3 tools/build_bio.py` creates the lightweight `bio-dist/` bundle without game files. Deploy it with `netlify deploy --prod --site b466c16e-f6ac-4e9d-8dfc-da5589cba805 --dir=bio-dist`. This explicitly targets the bio site and keeps the original project's Netlify link unchanged.
+
+The bio site has separate Cloudflare analytics in the same account, site tag `719defc76041499c913f399d16a2ebd2`. Analytics for both sites: https://dash.cloudflare.com/3fb775a6edefa8f3b530ca6327c14289/web-analytics/sites . Instagram acceptance of a URL is controlled by Instagram; this page cannot guarantee that a rejected URL will be accepted.
+
+The bio page also links to Micky’s three-level Game Room at https://micky-game-room.netlify.app/ . Its separate source and portable setup live in the sibling `game-room-public` project.
