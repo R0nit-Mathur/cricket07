@@ -1,0 +1,9 @@
+{
+  "name": "cricket07",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cricket 07 - micky's static site, deployed on Vercel",
+  "scripts": {
+    "vercel-build": "echo 'static site: no build step required'"
+  }
+}
